@@ -2,10 +2,24 @@
   "name": "nchat",
   "version": "0.0.1",
   "description": "Node.js scalable chat service",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test --verbose"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Michael Plakhov",
+  "license": "ISC",
+  "dependencies": {
+    "connect-redis": "^2.2.0",
+    "cookie-parser": "^1.3.4",
+    "express": "^4.12.2",
+    "express-session": "^1.10.3",
+    "grunt": "^0.4.5",
+    "grunt-nodemon": "^0.4.0",
+    "matchdep": "^0.3.0",
+    "nodemon": "^1.3.7",
+    "q": "^1.2.0",
+    "r2d2": "git://github.com/Klab-Berlin/r2d2",
+    "redis": "^0.12.1",
+    "redis-q": "0.0.3"
+  }
 }
