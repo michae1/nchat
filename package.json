@@ -20,6 +20,7 @@
     "q": "^1.2.0",
     "r2d2": "git://github.com/Klab-Berlin/r2d2",
     "redis": "^0.12.1",
-    "redis-q": "0.0.3"
+    "redis-q": "0.0.3",
+    "websocket": "^1.0.17"
   }
 }
