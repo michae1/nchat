@@ -18,12 +18,9 @@ var pub = redis.createClient(),
 
 console.log("Connected to redis");
 
-var activeChannels = {};
-
-
 socketServer( 'nchat', function ( connection, server ) {
     connection.on('open', function ( id ) {
-        u.startNewClient.call(this, connection, server, pub, sub, activeChannels);
+        u.startNewClient.call(this, connection, server, pub, sub);
     });
 
     connection.on('message', function ( msg ) {
