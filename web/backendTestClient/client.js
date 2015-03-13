@@ -44,6 +44,10 @@ function joinChannel() {
 	var channel = jQuery('#channel').val();
 	jQuery('#messages').empty();codeTest.channel = channel;
 	drawMessage({ author:'system', channel: codeTest.channel, text: 'welcome to a new channel (' + channel + '), ' + codeTest.nickName, timestamp: new Date().toLocaleTimeString() });
+	var data = {
+		channel: codeTest.channel,
+	};
+	send2server('join', data);
 	return codeTest.channel;
 };
 
@@ -65,7 +69,6 @@ function sendMsg(text) {
 	// drawMessage({ author:'YOU', channel: data.channel, text: data.text, timestamp: new Date().toLocaleTimeString() });
 	return send2server('msg', data);
 };
-
 
 function send2server(command, data) {
 	return codeTest.client.send(
