@@ -47,8 +47,9 @@ function joinChannel() {
 	var data = {
 		channel: codeTest.channel,
 	};
-	send2server('join', data);
-	return codeTest.channel;
+
+	return send2server('join', data);
+	
 };
 
 
@@ -87,7 +88,6 @@ function send2server(command, data) {
 
 
 function handleMessageFromServer(msg) {
-	console.log('handle message')
 	if (typeof msg.command !== 'undefined' && typeof msg.data !== 'undefined') {
 		if (msg.command === 'messages') {
 			for (var n=0; n<msg.data.length; n+=1) {

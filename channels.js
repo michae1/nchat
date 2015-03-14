@@ -1,7 +1,9 @@
+'use strict';
+
 var singleton,
     obj;
 
- // Singleton object to store/manage channels records for this node
+ // Singleton object to store/manage count of channel users for this node
  // Dict used to find when we need unsubscribe empty channel to save resources   
 
 function Channels( args ) {
@@ -34,6 +36,5 @@ exports.addClient = function(channel){
 }
 
 exports.removeClient = function(channel){
-    console.log('i shld remove', channel)
     return singleton.removeClient(channel)
 }

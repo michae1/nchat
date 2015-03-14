@@ -49,12 +49,9 @@ window.Socket = (function(){
    *  @return {[type]}            [description]
    */
   Socket.prototype.on = function ( topic, callback ) {
-    console.log('on', topic)
-    console.log('callback', callback)
     callback = decode.call( this, callback );
 
     this.handler[ topic ] = [callback];
-    console.log('this.handler',this.handler)
   };
 
 
@@ -164,16 +161,13 @@ window.Socket = (function(){
    *  @return {[type]} [description]
    */
   function connect() {
-    console.log('connect called!')
 		var server = this.server,	socket;
 		var wsProtocol = (server.ssl) ? 'wss://' : 'ws://' ;
 		try {
 			if ( server.server ) {
 				socket = new WebSocket( wsProtocol + server.server );
-        console.log('server.server',server.server)
 			} else {
 				socket = new WebSocket( wsProtocol + server.url + ':' + server.port + '/?' + ( server.parameters || '' ), server.protocol || null );
-        console.log('server',server)
 			}
 		} catch ( e ) {
 			socket.emit('error', 'bad connection');
@@ -196,7 +190,6 @@ window.Socket = (function(){
         handler = this.handler || {};     // ~ reconnect
 
     for ( var i = 0, l = events.length; i < l; i++ ) {
-      console.log('bind event', events[i])
       if ( !handler[ events[i] ] ) handler[ events[i] ] = [];
       socket.addEventListener( events[i], handle.bind(this) );
     }
@@ -238,7 +231,6 @@ window.Socket = (function(){
 
     // delegate
     function handle ( e ) {
-      console.log('handle')
       if ( !this.id && typeof e.data !== 'undefined') return register.call( this, e.data );
 
        // prevent multiple firing
@@ -297,7 +289,6 @@ window.Socket = (function(){
       var msg = e.data;
 
       try {
-
         var decoder = JSON.parse;
 
         msg = decoder( msg );
