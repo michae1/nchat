@@ -9,41 +9,40 @@ var redis = require('redis'),
 
 exports = module.exports = {    
     storeMessage: function(msg, channel){
-        return Q.ninvoke(this._meta.rclient, "zadd", this._meta.channel, +(new Date()), msg).
-            then(
-                function(rez){console.log('rez',rez)},
-                function(rez){console.log('err',rez)}
-                )
+        // store message to redis
+        return Q.ninvoke(this._meta.rclient, "zadd", this._meta.channel, +(new Date()), msg);
     },
     getMessages: function(channel){
-        // Get messages history for channel
-        var currentTimeStamp = +(new Date())
-        return Q.ninvoke(this._meta.rclient, "zrangebyscore", this._meta.channel, (currentTimeStamp-conf.chatMessagesTTL), "+inf").
-            then(
-                function(rez){
-                    console.log('rez', rez)
-                    return JSON.stringify({
-                        'id': 'server',
-                        'action': {
-                            'command': 'messages',
-                            'data': rez.map(JSON.parse)
-                        }
-                    });
-                },
-                function(rez){console.log('err',rez)}
-                )
+        // Get messages history for channel 
+        var currentTimeStamp = +(new Date());
+        return Q.ninvoke(this._meta.rclient, "zrangebyscore", this._meta.channel, (currentTimeStamp-conf.chatMessagesTTL), "+inf")
+            .then(
+                    function(rez){
+                        return JSON.stringify({
+                            'id': 'server',
+                            'action': {
+                                'command': 'messages',
+                                'data': rez.map(JSON.parse)
+                            }
+                        });
+                    },
+                    function(rez){console.log('err',rez);}
+                );
     },
     adoptMsg: function(parsed){
+        // fix command names difference 
         if (parsed.action.command == 'msg')
             parsed.action.command = 'messages';
         return JSON.stringify(parsed.action);        
     },
     getChannelFromMsg: function(parsed){
+        // farce channel name from message
         if (parsed.action && parsed.action.data && parsed.action.data.length > 0);
         return parsed.action.data[0].channel;
     },
 
     changeChannel: function (channel) {
+        // change channel, clean subscription if needed
         var _this = this;
         return Q.ninvoke(_this._meta.sub, "subscribe", channel)
             .then(function(){
@@ -53,17 +52,18 @@ exports = module.exports = {
                 connLeft = channels.removeClient(_this._meta.channel);
                 _this._meta.channel = channel;
                 if (!connLeft){
-                    console.log('no clients left in channel, unsubscribe from ', oldChannel)
-                    return Q.ninvoke(_this._meta.sub, "unsubscribe", oldChannel)
+                    console.log('no clients left in channel, unsubscribe from ', oldChannel);
+                    return Q.ninvoke(_this._meta.sub, "unsubscribe", oldChannel);
                 } 
-            })
+            });
     },
 
     notifyClient: function(channel, msg){
+        // send message(s) to client
         if (channel != this._meta.channel){
             return false;
         }
-        var parsedMsg = JSON.parse(msg)
+        var parsedMsg = JSON.parse(msg);
         // if (this._meta.server.id != parsedMsg.id){
         var adoptedMessage = exports.adoptMsg(parsedMsg);
         this.send( adoptedMessage );
@@ -72,10 +72,11 @@ exports = module.exports = {
     },
 
     startNewClient: function(connection, server, pub, sub, rclient){
+        // Initialize connection object, add listener to redis subscribe.
         console.log('New client connected, starting');
         var _this = this;
         this._meta = {};
-        // this._meta.channel = conf.chatDefaultChannel;
+
         this._meta.pub = pub;
         this._meta.sub = sub;
         this._meta.rclient = rclient;
@@ -94,10 +95,14 @@ exports = module.exports = {
                     exports.notifyClient.call(_this, channel, msg);
                 });
                 return true;     
-            },function(err){console.log('error',err)})
+            },function(err){
+                console.log('error',err);
+            }
+            );
 
     },
     joinClientToChannel: function(messageChannel){
+        // Change channel, subscribe, send channel archive
         var _this = this;
         if (messageChannel != this._meta.channel){
             return exports.changeChannel.call(_this, messageChannel)
@@ -105,13 +110,20 @@ exports = module.exports = {
                     return exports.getMessages.call(_this, messageChannel)
                         .then(function(msgs){
                             return exports.notifyClient.call(_this, messageChannel, msgs)
-                                .then(function(succ){return succ}, function(err){console.log('err',err)})
-                        })
+                                .then(function(succ){
+                                    return succ;
+                                }, function(err){
+                                    console.log('err',err);
+                                });
+                        });
                     // TODO: load chat from redis
-                }, function(err){console.log('err',err)})
+                }, function(err){
+                    console.log('err',err);
+                });
             }
     },
     processMessage: function(msg){
+        // Process message
         var _this = this,
             parsedMsg = JSON.parse(msg.utf8Data),
             messageChannel = exports.getChannelFromMsg(parsedMsg);
@@ -120,9 +132,8 @@ exports = module.exports = {
             if (parsedMsg.action.command == 'join'){
                 exports.joinClientToChannel.call(_this, messageChannel);
             } else if (parsedMsg.action.command == 'msg') {
-                console.log('we have message, lets save it and publish')
                 _this._meta.pub.publish(_this._meta.channel, msg.utf8Data);
-                return exports.storeMessage.call(this, JSON.stringify(parsedMsg.action.data[0]), messageChannel)
+                return exports.storeMessage.call(this, JSON.stringify(parsedMsg.action.data[0]), messageChannel);
                 // TODO store in redis
             }
         
@@ -131,10 +142,10 @@ exports = module.exports = {
 
     },
     closeAllRelated: function(){
+        // Close connections
         console.log('Client left, closing related connections');
         var connLeft = channels.removeClient(this._meta.channel),
         _this = this;
-        console.log('left:', connLeft)
         if (!connLeft){
             return Q.ninvoke(_this._meta.sub, "unsubscribe", _this._meta.channel)
                 .then(function(){console.log('No clients left in channel unsubscribe:', _this._meta.channel);},
@@ -142,4 +153,4 @@ exports = module.exports = {
         }
         
     }
-}
+};

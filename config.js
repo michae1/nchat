@@ -1,4 +1,6 @@
-var config = {}
+'use strict';
+
+var config = {};
 
 config.redisHost = 'localhost';
 config.redisPort = 6379;

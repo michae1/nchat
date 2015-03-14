@@ -22,19 +22,19 @@ Channels.prototype = {
         var left = 0;
         if (this.channels[channel])
             this.channels[channel] -=1;
-        left = parseInt(this.channels[channel])
+        left = parseInt(this.channels[channel]);
         if (this.channels[channel] == "0")
-            delete this.channels[channel]
-        return left
+            delete this.channels[channel];
+        return left;
     }
-}
+};
 if (!singleton)
     singleton = new Channels();
 
 exports.addClient = function(channel){
-    return singleton.addClient(channel)
-}
+    return singleton.addClient(channel);
+};
 
 exports.removeClient = function(channel){
-    return singleton.removeClient(channel)
-}
+    return singleton.removeClient(channel);
+};

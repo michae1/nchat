@@ -69,7 +69,6 @@ function sendMsg(text) {
 		timestamp: +(new Date())
 	};
 	// drawMessage({ author:'YOU', channel: data.channel, text: data.text, timestamp: new Date().toLocaleTimeString() });
-	console.log('msg',data)
 	return send2server('msg', data);
 };
 
@@ -104,7 +103,6 @@ function handleMessageFromServer(msg) {
 function drawMessage(data) {
 	var msgString = '<span>{' + data.channel + '@' + (new Date(data.timestamp).toLocaleTimeString()) + '} [' + data.author + '] ' + data.text + '</span><br/>';
 	jQuery('#messages').append(msgString);
-	console.log('we should write this:', msgString)
 };
 
 
