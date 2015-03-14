@@ -36,14 +36,14 @@ function init() {
 			codeTest.client = setupSocket();
 		}
 	);
-	drawMessage({ author:'system', channel: codeTest.channel, text: 'welcome to the test', timestamp: new Date().toLocaleTimeString() });
+	drawMessage({ author:'system', channel: codeTest.channel, text: 'welcome to the test', timestamp: +(new Date()) });
 };
 
 
 function joinChannel() {
 	var channel = jQuery('#channel').val();
 	jQuery('#messages').empty();codeTest.channel = channel;
-	drawMessage({ author:'system', channel: codeTest.channel, text: 'welcome to a new channel (' + channel + '), ' + codeTest.nickName, timestamp: new Date().toLocaleTimeString() });
+	drawMessage({ author:'system', channel: codeTest.channel, text: 'welcome to a new channel (' + channel + '), ' + codeTest.nickName, timestamp: +(new Date())});
 	var data = {
 		channel: codeTest.channel,
 	};
@@ -56,7 +56,7 @@ function joinChannel() {
 function setNick() {
 	var nick = jQuery('#nickname').val();
 	codeTest.nickName = nick;
-	drawMessage({ author:'system', channel: codeTest.channel, text: 'greetings, ' + nick + '!', timestamp: new Date().toLocaleTimeString() });
+	drawMessage({ author:'system', channel: codeTest.channel, text: 'greetings, ' + nick + '!', timestamp: +(new Date()) });
 	return codeTest.nickName;
 };
 
@@ -65,9 +65,11 @@ function sendMsg(text) {
 	var data = {
 		author: codeTest.nickName,
 		channel: codeTest.channel,
-		text: text
+		text: text,
+		timestamp: +(new Date())
 	};
 	// drawMessage({ author:'YOU', channel: data.channel, text: data.text, timestamp: new Date().toLocaleTimeString() });
+	console.log('msg',data)
 	return send2server('msg', data);
 };
 
@@ -79,7 +81,8 @@ function send2server(command, data) {
 				{
 					author: codeTest.nickName,
 					channel: codeTest.channel,
-					text: data.text
+					text: data.text,
+					timestamp: data.timestamp
 				}
 			]
 		}
@@ -99,7 +102,7 @@ function handleMessageFromServer(msg) {
 
 
 function drawMessage(data) {
-	var msgString = '<span>{' + data.channel + '@' + data.timestamp + '} [' + data.author + '] ' + data.text + '</span><br/>';
+	var msgString = '<span>{' + data.channel + '@' + (new Date(data.timestamp).toLocaleTimeString()) + '} [' + data.author + '] ' + data.text + '</span><br/>';
 	jQuery('#messages').append(msgString);
 	console.log('we should write this:', msgString)
 };
