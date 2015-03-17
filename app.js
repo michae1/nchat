@@ -7,32 +7,23 @@ var app = require('express')(),
     cookieParser = require('cookie-parser'),
     socketServer  = require('r2d2/server/vws.socket.js').server,
     Q = require('q'),
+    argv = require('optimist').argv,
     u = require('./chatUtils');
-    
-
-
 
 var pub = redis.createClient(),
-    sub = redis.createClient();
+    sub = redis.createClient(),
+    rclient = redis.createClient();
 
 
 console.log("Connected to redis");
 
-var activeChannels = {};
-
-
 socketServer( 'nchat', function ( connection, server ) {
     connection.on('open', function ( id ) {
-        u.startNewClient.call(this, connection, server, pub, sub, activeChannels);
+        u.startNewClient.call(this, connection, server, pub, sub, rclient);
     });
 
     connection.on('message', function ( msg ) {
-        console.log('mess:', msg)
         u.processMessage.call(this, msg);
-    });
-
-    connection.on('join', function ( channel ) {
-        console.log('join', channel)
     });
 
     connection.on('error', function ( err ) {
@@ -45,6 +36,6 @@ socketServer( 'nchat', function ( connection, server ) {
     });
 
 }).config( {
-  port: conf.webPort
+  port: argv.port || conf.webPort
 } );  
 
